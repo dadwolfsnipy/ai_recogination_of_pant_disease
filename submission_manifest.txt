@@ -1,0 +1,45 @@
+Submission Manifest
+
+Include the following files and folders in the final zip/tar submission:
+
+1) Configuration
+- configs/train.yaml
+- environment.yml
+- requirements.txt
+
+2) Source code (minimal needed for training + inference + app)
+- src/ (entire folder, excluding `__pycache__/`)
+
+3) Weights
+- weights/best.pt (best model)
+- weights/last_epochXXX.pt (optionally include last checkpoint)
+
+4) Documentation (now centralized under docs/)
+- README.md (root quickstart)
+- docs/REPORT.md
+- docs/REPORT_ASCII.txt
+- docs/updated_tools.txt
+- docs/README_submission.md
+- submission/submission_manifest.txt (this file)
+
+5) Data (datasets + processed)
+- data/ (root folder containing datasets and processed data)
+- If size is large, you may include only a text pointer: data/README.txt with dataset source or generation instructions.
+
+6) API Keys (handle with care)
+- secrets/gemini_api_key.txt (copied from env/gemini_keys.txt if you explicitly agree)
+
+7) Root entrypoints
+- app.py (Streamlit app wrapper)
+- cli.py (CLI inference entrypoint)
+
+Exclusions (to keep package light and focused)
+- runs/ (training debug artifacts)
+- yolov8n.pt and other detection weights
+- YOLO-specific datasets (e.g., datasets/fruit_det/) and labels
+- YOLO-related source files (e.g., src/detect.py, src/eval_yolo.py, src/audit_yolo_dataset.py)
+- fastapi-related code (not present after pruning)
+
+Notes
+- The minimal runtime dependencies are in requirements.txt (pruned).
+- For exact best validation accuracy, extract from weights/best.pt.

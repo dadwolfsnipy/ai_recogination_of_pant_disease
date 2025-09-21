@@ -1,0 +1,123 @@
+PROJECT REPORT (SUBMISSION)
+
+EXECUTIVE SUMMARY
+- Goal: Plant species classification with 154 classes and actionable agronomy insights.
+- Stack: PyTorch + timm, Albumentations, Streamlit UI, Gemini for descriptive insights.
+- Result: End-to-end training -> best weights -> inference (Python + web app). Fast training profile on modest GPUs.
+- Best Validation Accuracy (Top-1): [PENDING]
+
+PROJECT GOALS (WHAT WE SET OUT TO DO)
++-------------------------+--------------------------------------------------------------+
+| Goal                    | Description                                                  |
++-------------------------+--------------------------------------------------------------+
+| End-to-end pipeline     | Prepare data -> Train -> Validate -> Deploy inference       |
+| Practical insights      | Disease, treatment, prevention, climate, regions, nutrients |
+| Efficient on hardware   | Light backbones and smaller images for faster epochs        |
+| Reproducibility         | Centralize configs and minimal requirements                 |
+| Clean deliverable       | Well-organized, YOLO-free submission with docs and manifest |
++-------------------------+--------------------------------------------------------------+
+
+TOPIC-WISE SUMMARY
++------------------+--------------------------------------------------------------------+
+| Topic            | Details                                                            |
++------------------+--------------------------------------------------------------------+
+| Objective        | Accurate, fast 154-class plant recognition with agronomy tips      |
+| Dataset          | Class-folder images -> data/RGB_224x224/{train,val,test}          |
+| Preprocessing    | Resize 160-192 px, ImageNet mean/std normalization                 |
+| Model            | EfficientNet-B0 or MobileNetV2 via timm                           |
+| Training         | AdamW, cosine schedule, label smoothing; mixup/cutmix optional     |
+| Validation       | Validate per `val_every`; best saved to weights/best.pt            |
+| Inference        | src/infer.py (TTA, multi-crop)                                     |
+| Web App          | src/streamlit_app.py with Gemini                                   |
+| Reproducibility  | configs/train.yaml, minimal requirements.txt                       |
++------------------+--------------------------------------------------------------------+
+
+MODULES & LIBRARIES USED
++-------------------+-------------------------------+----------------------------------+
+| Category          | Component                      | Path / Package                   |
++-------------------+-------------------------------+----------------------------------+
+| Model             | EfficientNet-B0/MobileNetV2    | timm                             |
+| DL Framework      | PyTorch                        | torch, torchvision, torchaudio   |
+| Data Augmentation | Albumentations                 | albumentations                   |
+| Image IO          | OpenCV, PIL                    | opencv-python, pillow            |
+| Utilities         | Arrays, progress               | numpy, tqdm                      |
+| Config            | Hydra/OmegaConf                | hydra-core, omegaconf            |
+| LLM Integration   | Gemini                         | google-generativeai              |
+| Training script   | Trainer entrypoint             | src/train.py                     |
+| Inference helper  | Offline predictions            | src/infer.py                     |
+| Web UI            | Streamlit app                  | src/streamlit_app.py             |
+| Tips logic        | Expert tips                    | src/tips_llm.py                  |
+| Gemini service    | LLM invocation                  | src/gemini.py                    |
+| Data prep         | Train/val/test split           | src/prepare_dataset.py           |
++-------------------+-------------------------------+----------------------------------+
+
+SOURCE MODULES OVERVIEW
++-----------------------+----------------------------------------------------------------+
+| Module                | Responsibility                                                  |
++-----------------------+----------------------------------------------------------------+
+| src/train.py          | Train loop (AMP, cosine sched, checkpoints, subset runs)       |
+| src/infer.py          | Load checkpoint and predict (Top-k), TTA/multicrop             |
+| src/streamlit_app.py  | UI for upload/camera, predictions and Gemini insights          |
+| src/gemini.py         | Calls Gemini with structured prompt for agronomy guidance      |
+| src/tips_llm.py       | Species-aware tips and best practices                          |
+| src/prepare_dataset.py| Split and prepare datasets to data/RGB_224x224/                |
++-----------------------+----------------------------------------------------------------+
+
+PROBLEMS, ROOT CAUSES, FIXES
++----------------------+--------------------------------------+-----------------------------+
+| Problem              | Root Cause                           | Fix                         |
++----------------------+--------------------------------------+-----------------------------+
+| Inference Top-k error| Nested lists from tensors            | Flatten arrays in infer.py  |
+| Slow training epochs | Heavy backbone / frequent validation | MobileNetV2, smaller img,   |
+|                      |                                      | val_every                   |
+| Class mismatch errors| Dataset class count changed          | Sync num_classes in config  |
+| Resume mismatch      | Old checkpoints diff head            | Guard resume; skip mismatch |
++----------------------+--------------------------------------+-----------------------------+
+
+RESULTS SUMMARY
++----------------------------+------------------------------------------+
+| Metric                     | Value                                    |
++----------------------------+------------------------------------------+
+| Best Validation Accuracy   | [PENDING]                                |
+| Classes                    | 154                                      |
+| Image Size                 | 160-192 px                               |
+| Backbone                   | EfficientNet-B0 or MobileNetV2           |
+| Validation cadence         | As per configs/train.yaml (val_every)    |
+| Checkpoints                | weights/best.pt; weights/last_epoch*.pt  |
++----------------------------+------------------------------------------+
+
+HOW TO RUN
+- Install: pip install -r requirements.txt
+- Prepare dataset: python src/prepare_dataset.py --input data/raw --output data/RGB_224x224 --val_split 0.15 --test_split 0.15
+- Train: python src/train.py --config configs/train.yaml
+- Inference: see src/infer.py example or use Streamlit app
+- Web app: streamlit run src/streamlit_app.py
+
+DIRECTORY POINTERS (INCLUDED IN SUBMISSION)
+- configs/ : training config
+- src/     : training/inference/app modules
+- weights/ : checkpoints (best.pt, last epoch)
+- docs/    : documentation and updates
+- data/ and/or datasets/ : include if size permits; pointer README otherwise
+
+NOTES
+- Secrets: provide Gemini API key via env var GEMINI_API_KEY or secrets/gemini_api_key.txt (do not share publicly).
+- Hardware: training benefits from CUDA; inference also runs on CPU.
+
+DETAILED OBJECTIVES ACHIEVED
+- Robust 154-class classifier with fast training/inference.
+- Gemini-based agronomy insights: diseases, treatments, prevention, climate, regions, nutrients.
+- Stable inference (top-k fix) and optional TTA/multicrop.
+- Reproducible config and minimal requirements.
+- YOLO fully removed from submission.
+
+DETAILED UPDATES (WHAT CHANGED)
+- Dependencies pruned (removed FastAPI/ONNX/YOLO etc.).
+- Trainer: subset flag, val_every, optional warm-start freeze, checkpoints.
+- Inference: top-k flattening fix; TTA/multicrop options.
+- Streamlit: UI polish, path fix, Gemini panel.
+- Docs: updated tools log, report; submission manifest created.
+
+FUTURE ENHANCEMENTS
+- Add eval.py for Top-1/Top-5, per-class accuracy, confusion matrix.
+- Optional: early stopping, EMA, ONNX/TensorRT export.
